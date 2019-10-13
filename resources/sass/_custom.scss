@@ -1,0 +1,94 @@
+.row.justify-content-center.login {
+    justify-content: center !important;
+    margin-top: 3.8rem;
+}
+
+.row.justify-content-center.register {
+    justify-content: center !important;
+    margin-top: 3.8rem;
+}
+
+.row.justify-content-center.email {
+    justify-content: center !important;
+    margin-top: 3.8rem;
+}
+
+.row.justify-content-center.forgot-password {
+    justify-content: center !important;
+    margin-top: 3.8rem;
+}
+
+.pt-4,
+.py-4 {
+    padding-top: 1.5rem !important;
+    margin-top: 1.9rem;
+}
+
+table.dataTable tbody tr {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.content-right {
+    text-align: end;
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+.developer {
+    margin-top: 1.5rem;
+}
+
+.card-body.book {
+    flex: 1 1 auto;
+    padding: 1.25rem;
+    background: white;
+    color: black;
+}
+
+p.card-text.title {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+small.author {
+    margin-bottom: 1rem;
+}
+
+p.card-text.description {
+    margin-top: 0;
+    margin-bottom: 0;
+    font-style: italic;
+}
+
+.btn.btn-sm.btn-outline-secondary.view:hover {
+    color: #fff;
+    border-color: #DF691A;
+    background-color: #DF691A;
+}
+
+.btn.btn-sm.btn-outline-secondary.update-book:hover {
+    color: #fff;
+    background-color: #ec971f;
+    border-color: #ea9214;
+}
+
+.btn.btn-sm.btn-outline-secondary.delete-book:hover {
+    color: #fff;
+    background-color: #d9534f;
+    border-color: #d9534f;
+}
+
+.text-muted.dark {
+    color: rgba(0, 0, 0, 0.71) !important;
+}
+
+.btn.btn-sm.btn-outline-secondary.back:hover {
+    color: #fff;
+    background-color: #d9534f;
+    border-color: #d9534f;
+}
+
+.pt-5,
+.py-5 {
+    padding-top: 1rem !important;
+}
