@@ -2,6 +2,21 @@
 
 @section('content')
 <div class="container">
+    <div class="row search">
+        <div class="col-sm">
+            <form action="{{ route('search') }}" method="post" class="input-group mb-4">
+                @csrf
+                <input type="hidden" name="entity" value="book">
+                <input type="text" class="form-control" id="search" name="q" placeholder="Search for Book">
+                <div class="input-group-append">
+                    <button class="btn btn-outline-primary" type="submit" id="btnSearch">Search</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="total-books">
+        <button class="btn btn-info" id="countBooks">Total Books</button>
+    </div>
     <div class="py-5">
         <div class="container">
             <div class="row">

@@ -31,7 +31,9 @@
     "dependencies": {
         "bootstrap": "^4.3.1",
         "jquery": "^3.4.1",
+        "noty": "^3.2.0-beta",
         "popper": "^1.0.1",
-        "popper.js": "^1.15.0"
+        "popper.js": "^1.15.0",
+        "toastr": "^2.1.4"
     }
 }

@@ -1,4 +1,5 @@
 import Swal from "sweetalert2";
+import Toastr from "toastr";
 
 $(document).ready(function() {
     $.ajaxSetup({
@@ -11,20 +12,13 @@ $(document).ready(function() {
     let bookmarkCreate = window.location.origin + '/bookmark/create';
     let bookmarkShow = window.location.origin + '/bookmark/show';
 
-    if (bookmark === window.location.href) {
+    if (window.location.href === bookmark) {
         $('#book').attr('class', 'nav-link dropdown-toggle');
-    } else if (bookmarkCreate === window.location.href) {
+    } else if (window.location.href === bookmarkCreate) {
         $('#book').attr('class', 'nav-link dropdown-toggle');
-    } else if (bookmarkShow === window.location.href) {
+    } else if (window.location.href === bookmarkShow) {
         $('#book').attr('class', 'nav-link dropdown-toggle');
     }
-
-    $('#btnRegister').on('click', function(event) {
-        // event.preventDefault();
-        $.post('/test', { key: 'test' }, function(data) {
-            console.log(data);
-        });
-    })
 
     /* Category */
 
@@ -45,13 +39,14 @@ $(document).ready(function() {
         let id = tr.find('.category-id').val();
 
         $.ajax({
-            type: "post",
-            url: "/category/fetch/",
+            type: 'post',
+            url: '/category/fetch/',
             data: { id: id },
-            dataType: "json",
+            dataType: "text",
             success: function(response) {
+                let jsonResponse = JSON.parse(response);
                 $('#categoryId').val(id);
-                $('#updateCategoryName').val(response[0]);
+                $('#updateCategoryName').val(jsonResponse[0]);
                 $('#updateCategoryModal').modal('toggle');
             }
         });
@@ -64,10 +59,10 @@ $(document).ready(function() {
 
         if (name !== updateName) {
             $.ajax({
-                type: "put",
-                url: "/category/" + id,
+                type: 'put',
+                url: '/category/' + id,
                 data: { name: updateName },
-                dataType: "text",
+                dataType: 'text',
                 success: function(response) {
                     let jsonResponse = JSON.parse(response);
                     if (jsonResponse.success) {
@@ -117,11 +112,12 @@ $(document).ready(function() {
         }).then((result) => {
             if (result.value) {
                 $.ajax({
-                    type: "delete",
-                    url: "/category/" + id,
-                    dataType: "json",
-                    success: function(deleted) {
-                        if (deleted) {
+                    type: 'delete',
+                    url: '/category/' + id,
+                    dataType: 'text',
+                    success: function(response) {
+                        let jsonResponse = JSON.parse(response);
+                        if (jsonResponse.success) {
                             tr.remove();
                             Swal.fire({
                                 title: 'Deleted!',
@@ -147,21 +143,22 @@ $(document).ready(function() {
         let id = div.find('.book-id').val();
 
         $.ajax({
-            type: "post",
-            url: "/book/fetch/",
+            type: 'post',
+            url: '/book/fetch/',
             data: { id: id },
-            dataType: "json",
+            dataType: 'text',
             success: function(response) {
+                let jsonResponse = JSON.parse(response);
                 $('#bookId').val(id);
                 $("#bookCategory option").each(function() {
-                    if ($(this).val() == response[0].category_id) {
+                    if ($(this).val() == jsonResponse[0].category_id) {
                         $(this).attr("selected", "selected");
                     }
                 });
 
-                $('#title').val(response[0].title);
-                $('#author').val(response[0].author);
-                $('#description').val(response[0].description);
+                $('#title').val(jsonResponse[0].title);
+                $('#author').val(jsonResponse[0].author);
+                $('#description').val(jsonResponse[0].description);
                 $('#updateBookModal').modal('toggle');
             }
         });
@@ -181,18 +178,66 @@ $(document).ready(function() {
                 type: "post",
                 url: "/book/fetch",
                 data: { id: id },
-                dataType: "json",
+                dataType: "text",
                 success: function(response) {
+                    let jsonResponse = JSON.parse(response);
+
                     let category = $('#bookCategory').val();
                     let title = $('#title').val();
                     let author = $('#author').val();
                     let description = $('#description').val();
 
-                    if (category != response[0].category_id ||
-                        title != response[0].title ||
-                        author != response[0].author ||
-                        description != response[0].description) {
-                        console.log('update with image');
+                    if (category != jsonResponse[0].category_id ||
+                        title != jsonResponse[0].title ||
+                        author != jsonResponse[0].author ||
+                        description != jsonResponse[0].description) {
+
+                        let formData = new FormData();
+                        formData.append('_method', 'PUT');
+                        formData.append('key', 'updateBookWithImage');
+                        formData.append('id', id);
+                        formData.append('category', category);
+                        formData.append('title', title);
+                        formData.append('author', author);
+                        formData.append('description', description);
+                        formData.append('image', property);
+
+                        $.ajax({
+                            type: 'post',
+                            url: '/book/' + id,
+                            data: formData,
+                            contentType: false,
+                            cache: false,
+                            processData: false,
+                            dataType: "text",
+                            success: function(response) {
+                                let jsonResponse = JSON.parse(response);
+
+                                if (jsonResponse.success) {
+                                    $('#updateBookModal').modal('toggle');
+                                    Swal.fire({
+                                        title: 'Updated!',
+                                        text: "Book image was successfully updated.",
+                                        type: 'success',
+                                    }).then((result) => {
+                                        if (result.value) {
+                                            window.location.reload();
+                                        }
+                                    });
+                                } else {
+                                    $('#updateBookModal').modal('toggle');
+                                    Swal.fire({
+                                        title: 'Update Failed!',
+                                        text: "Unable to update your book image.",
+                                        type: 'error',
+                                    }).then((result) => {
+                                        if (result.value) {
+                                            window.location.reload();
+                                        }
+                                    });
+                                }
+                            }
+                        });
                     } else {
                         let formData = new FormData();
                         formData.append('_method', 'PUT');
@@ -201,15 +246,16 @@ $(document).ready(function() {
                         formData.append('image', property);
 
                         $.ajax({
-                            type: "post",
-                            url: "/book/" + id,
+                            type: 'post',
+                            url: '/book/' + id,
                             data: formData,
                             contentType: false,
                             cache: false,
                             processData: false,
-                            dataType: "json",
+                            dataType: "text",
                             success: function(response) {
-                                if (response.success) {
+                                let jsonResponse = JSON.parse(response);
+                                if (jsonResponse.success) {
                                     $('#updateBookModal').modal('toggle');
                                     Swal.fire({
                                         title: 'Updated!',
@@ -242,24 +288,26 @@ $(document).ready(function() {
                 type: "post",
                 url: "/book/fetch",
                 data: { id: id },
-                dataType: "json",
+                dataType: "text",
                 success: function(response) {
+                    let jsonResponse = JSON.parse(response);
                     let category = $('#bookCategory').val();
                     let title = $('#title').val();
                     let author = $('#author').val();
                     let description = $('#description').val();
 
-                    if (category != response[0].category_id ||
-                        title != response[0].title ||
-                        author != response[0].author ||
-                        description != response[0].description) {
+                    if (category != jsonResponse[0].category_id ||
+                        title != jsonResponse[0].title ||
+                        author != jsonResponse[0].author ||
+                        description != jsonResponse[0].description) {
                         $.ajax({
-                            type: "put",
-                            url: "/book/" + id,
+                            type: 'put',
+                            url: 'book/' + id,
                             data: { key: 'updateBookInfo', category: category, title: title, author: author, description: description },
-                            dataType: "json",
+                            dataType: "text",
                             success: function(response) {
-                                if (response.success) {
+                                let jsonResponse = JSON.parse(response);
+                                if (jsonResponse.success) {
                                     setBookCategoryName(id, category);
                                     $('.title-' + id).text(title);
                                     $('.author-' + id).text(author);
@@ -338,5 +386,36 @@ $(document).ready(function() {
     let errorMessage = $('.alert.alert-danger').length;
     if (errorMessage) {
         $('#app').scrollTop();
+    }
+
+    let book = window.location.origin + '/book';
+
+    if (window.location.href === book) {
+        $('#app').scrollTop();
+    }
+
+    // total books
+    $('#countBooks').on('click', function() {
+        $.post('/book/total', function(data) {
+            if (parseInt(data) > 0) {
+                Toastr.info('Total Books: ' + data);
+            }
+        });
+    });
+
+    Toastr.options = {
+        tapToDismiss: true,
+        preventDuplicates: true,
+        toastClass: 'toast',
+        containerId: 'toast-container',
+        debug: false,
+        fadeIn: 300,
+        fadeOut: 1000,
+        extendedTimeOut: 1000,
+        iconClass: 'toast-info',
+        positionClass: 'toast-top-right',
+        timeOut: 2000,
+        titleClass: 'toast-title',
+        messageClass: 'toast-message'
     }
 });

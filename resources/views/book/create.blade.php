@@ -19,6 +19,9 @@
                                     @endforeach
                                 @endif
                             </select>
+                            @if (count($categories) === 0)
+                                <a href="{{ url('/category/create') }}" class="text-danger">Please add some category</a>
+                            @endif
                         </div>
                         <div class="form-group">
                             <label for="title">{{ __('Title') }}</label>

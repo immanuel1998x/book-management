@@ -92,3 +92,67 @@ p.card-text.description {
 .py-5 {
     padding-top: 1rem !important;
 }
+
+.row.search {
+    display: flex;
+    flex-wrap: wrap;
+    margin-right: -15px;
+    margin-left: -15px;
+    margin-top: 20px;
+    margin-bottom: -20px;
+}
+
+.btn.btn-primary.facebook {
+    color: #fff;
+    background-color: #4e71ba;
+    border-color: #4e71ba;
+}
+
+.btn.btn-primary.facebook:hover {
+    color: #fff !important;
+    background-color: #2f55a4 !important;
+    border-color: #2f55a4 !important;
+}
+
+.btn.btn-primary.linkedin {
+    color: #fff;
+    background-color: #4682b4;
+    border-color: #4682b4;
+}
+
+.btn.btn-primary.linkedin:hover {
+    color: #fff !important;
+    background-color: #1293d2 !important;
+    border-color: #1293d2 !important;
+}
+
+.btn.btn-primary.github {
+    color: white !important;
+    background-color: #333 !important;
+    border-color: #333 !important;
+}
+
+.btn.btn-primary.github:hover {
+    color: #fff !important;
+    background-color: #13aff0 !important;
+    border-color: #13aff0 !important;
+}
+
+.total-books {
+    margin-top: -10px;
+    margin-bottom: 10px;
+}
+
+.toast {
+    max-width: 350px;
+    overflow: hidden;
+    font-size: 0.875rem;
+    background-color: rgba(17, 226, 120, 0.85);
+    background-clip: padding-box;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.1);
+    -webkit-backdrop-filter: blur(10px);
+    backdrop-filter: blur(10px);
+    opacity: 0;
+    border-radius: 0.25rem;
+}

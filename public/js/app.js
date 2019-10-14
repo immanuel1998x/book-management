@@ -55080,6 +55080,502 @@ if (typeof this !== 'undefined' && this.Sweetalert2){  this.swal = this.sweetAle
 
 /***/ }),
 
+/***/ "./node_modules/toastr/toastr.js":
+/*!***************************************!*\
+  !*** ./node_modules/toastr/toastr.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*
+ * Toastr
+ * Copyright 2012-2015
+ * Authors: John Papa, Hans Fjällemark, and Tim Ferrell.
+ * All Rights Reserved.
+ * Use, reproduction, distribution, and modification of this code is subject to the terms and
+ * conditions of the MIT license, available at http://www.opensource.org/licenses/mit-license.php
+ *
+ * ARIA Support: Greta Krafsig
+ *
+ * Project: https://github.com/CodeSeven/toastr
+ */
+/* global define */
+(function (define) {
+    !(__WEBPACK_AMD_DEFINE_ARRAY__ = [__webpack_require__(/*! jquery */ "./node_modules/jquery/dist/jquery.js")], __WEBPACK_AMD_DEFINE_RESULT__ = (function ($) {
+        return (function () {
+            var $container;
+            var listener;
+            var toastId = 0;
+            var toastType = {
+                error: 'error',
+                info: 'info',
+                success: 'success',
+                warning: 'warning'
+            };
+
+            var toastr = {
+                clear: clear,
+                remove: remove,
+                error: error,
+                getContainer: getContainer,
+                info: info,
+                options: {},
+                subscribe: subscribe,
+                success: success,
+                version: '2.1.4',
+                warning: warning
+            };
+
+            var previousToast;
+
+            return toastr;
+
+            ////////////////
+
+            function error(message, title, optionsOverride) {
+                return notify({
+                    type: toastType.error,
+                    iconClass: getOptions().iconClasses.error,
+                    message: message,
+                    optionsOverride: optionsOverride,
+                    title: title
+                });
+            }
+
+            function getContainer(options, create) {
+                if (!options) { options = getOptions(); }
+                $container = $('#' + options.containerId);
+                if ($container.length) {
+                    return $container;
+                }
+                if (create) {
+                    $container = createContainer(options);
+                }
+                return $container;
+            }
+
+            function info(message, title, optionsOverride) {
+                return notify({
+                    type: toastType.info,
+                    iconClass: getOptions().iconClasses.info,
+                    message: message,
+                    optionsOverride: optionsOverride,
+                    title: title
+                });
+            }
+
+            function subscribe(callback) {
+                listener = callback;
+            }
+
+            function success(message, title, optionsOverride) {
+                return notify({
+                    type: toastType.success,
+                    iconClass: getOptions().iconClasses.success,
+                    message: message,
+                    optionsOverride: optionsOverride,
+                    title: title
+                });
+            }
+
+            function warning(message, title, optionsOverride) {
+                return notify({
+                    type: toastType.warning,
+                    iconClass: getOptions().iconClasses.warning,
+                    message: message,
+                    optionsOverride: optionsOverride,
+                    title: title
+                });
+            }
+
+            function clear($toastElement, clearOptions) {
+                var options = getOptions();
+                if (!$container) { getContainer(options); }
+                if (!clearToast($toastElement, options, clearOptions)) {
+                    clearContainer(options);
+                }
+            }
+
+            function remove($toastElement) {
+                var options = getOptions();
+                if (!$container) { getContainer(options); }
+                if ($toastElement && $(':focus', $toastElement).length === 0) {
+                    removeToast($toastElement);
+                    return;
+                }
+                if ($container.children().length) {
+                    $container.remove();
+                }
+            }
+
+            // internal functions
+
+            function clearContainer (options) {
+                var toastsToClear = $container.children();
+                for (var i = toastsToClear.length - 1; i >= 0; i--) {
+                    clearToast($(toastsToClear[i]), options);
+                }
+            }
+
+            function clearToast ($toastElement, options, clearOptions) {
+                var force = clearOptions && clearOptions.force ? clearOptions.force : false;
+                if ($toastElement && (force || $(':focus', $toastElement).length === 0)) {
+                    $toastElement[options.hideMethod]({
+                        duration: options.hideDuration,
+                        easing: options.hideEasing,
+                        complete: function () { removeToast($toastElement); }
+                    });
+                    return true;
+                }
+                return false;
+            }
+
+            function createContainer(options) {
+                $container = $('<div/>')
+                    .attr('id', options.containerId)
+                    .addClass(options.positionClass);
+
+                $container.appendTo($(options.target));
+                return $container;
+            }
+
+            function getDefaults() {
+                return {
+                    tapToDismiss: true,
+                    toastClass: 'toast',
+                    containerId: 'toast-container',
+                    debug: false,
+
+                    showMethod: 'fadeIn', //fadeIn, slideDown, and show are built into jQuery
+                    showDuration: 300,
+                    showEasing: 'swing', //swing and linear are built into jQuery
+                    onShown: undefined,
+                    hideMethod: 'fadeOut',
+                    hideDuration: 1000,
+                    hideEasing: 'swing',
+                    onHidden: undefined,
+                    closeMethod: false,
+                    closeDuration: false,
+                    closeEasing: false,
+                    closeOnHover: true,
+
+                    extendedTimeOut: 1000,
+                    iconClasses: {
+                        error: 'toast-error',
+                        info: 'toast-info',
+                        success: 'toast-success',
+                        warning: 'toast-warning'
+                    },
+                    iconClass: 'toast-info',
+                    positionClass: 'toast-top-right',
+                    timeOut: 5000, // Set timeOut and extendedTimeOut to 0 to make it sticky
+                    titleClass: 'toast-title',
+                    messageClass: 'toast-message',
+                    escapeHtml: false,
+                    target: 'body',
+                    closeHtml: '<button type="button">&times;</button>',
+                    closeClass: 'toast-close-button',
+                    newestOnTop: true,
+                    preventDuplicates: false,
+                    progressBar: false,
+                    progressClass: 'toast-progress',
+                    rtl: false
+                };
+            }
+
+            function publish(args) {
+                if (!listener) { return; }
+                listener(args);
+            }
+
+            function notify(map) {
+                var options = getOptions();
+                var iconClass = map.iconClass || options.iconClass;
+
+                if (typeof (map.optionsOverride) !== 'undefined') {
+                    options = $.extend(options, map.optionsOverride);
+                    iconClass = map.optionsOverride.iconClass || iconClass;
+                }
+
+                if (shouldExit(options, map)) { return; }
+
+                toastId++;
+
+                $container = getContainer(options, true);
+
+                var intervalId = null;
+                var $toastElement = $('<div/>');
+                var $titleElement = $('<div/>');
+                var $messageElement = $('<div/>');
+                var $progressElement = $('<div/>');
+                var $closeElement = $(options.closeHtml);
+                var progressBar = {
+                    intervalId: null,
+                    hideEta: null,
+                    maxHideTime: null
+                };
+                var response = {
+                    toastId: toastId,
+                    state: 'visible',
+                    startTime: new Date(),
+                    options: options,
+                    map: map
+                };
+
+                personalizeToast();
+
+                displayToast();
+
+                handleEvents();
+
+                publish(response);
+
+                if (options.debug && console) {
+                    console.log(response);
+                }
+
+                return $toastElement;
+
+                function escapeHtml(source) {
+                    if (source == null) {
+                        source = '';
+                    }
+
+                    return source
+                        .replace(/&/g, '&amp;')
+                        .replace(/"/g, '&quot;')
+                        .replace(/'/g, '&#39;')
+                        .replace(/</g, '&lt;')
+                        .replace(/>/g, '&gt;');
+                }
+
+                function personalizeToast() {
+                    setIcon();
+                    setTitle();
+                    setMessage();
+                    setCloseButton();
+                    setProgressBar();
+                    setRTL();
+                    setSequence();
+                    setAria();
+                }
+
+                function setAria() {
+                    var ariaValue = '';
+                    switch (map.iconClass) {
+                        case 'toast-success':
+                        case 'toast-info':
+                            ariaValue =  'polite';
+                            break;
+                        default:
+                            ariaValue = 'assertive';
+                    }
+                    $toastElement.attr('aria-live', ariaValue);
+                }
+
+                function handleEvents() {
+                    if (options.closeOnHover) {
+                        $toastElement.hover(stickAround, delayedHideToast);
+                    }
+
+                    if (!options.onclick && options.tapToDismiss) {
+                        $toastElement.click(hideToast);
+                    }
+
+                    if (options.closeButton && $closeElement) {
+                        $closeElement.click(function (event) {
+                            if (event.stopPropagation) {
+                                event.stopPropagation();
+                            } else if (event.cancelBubble !== undefined && event.cancelBubble !== true) {
+                                event.cancelBubble = true;
+                            }
+
+                            if (options.onCloseClick) {
+                                options.onCloseClick(event);
+                            }
+
+                            hideToast(true);
+                        });
+                    }
+
+                    if (options.onclick) {
+                        $toastElement.click(function (event) {
+                            options.onclick(event);
+                            hideToast();
+                        });
+                    }
+                }
+
+                function displayToast() {
+                    $toastElement.hide();
+
+                    $toastElement[options.showMethod](
+                        {duration: options.showDuration, easing: options.showEasing, complete: options.onShown}
+                    );
+
+                    if (options.timeOut > 0) {
+                        intervalId = setTimeout(hideToast, options.timeOut);
+                        progressBar.maxHideTime = parseFloat(options.timeOut);
+                        progressBar.hideEta = new Date().getTime() + progressBar.maxHideTime;
+                        if (options.progressBar) {
+                            progressBar.intervalId = setInterval(updateProgress, 10);
+                        }
+                    }
+                }
+
+                function setIcon() {
+                    if (map.iconClass) {
+                        $toastElement.addClass(options.toastClass).addClass(iconClass);
+                    }
+                }
+
+                function setSequence() {
+                    if (options.newestOnTop) {
+                        $container.prepend($toastElement);
+                    } else {
+                        $container.append($toastElement);
+                    }
+                }
+
+                function setTitle() {
+                    if (map.title) {
+                        var suffix = map.title;
+                        if (options.escapeHtml) {
+                            suffix = escapeHtml(map.title);
+                        }
+                        $titleElement.append(suffix).addClass(options.titleClass);
+                        $toastElement.append($titleElement);
+                    }
+                }
+
+                function setMessage() {
+                    if (map.message) {
+                        var suffix = map.message;
+                        if (options.escapeHtml) {
+                            suffix = escapeHtml(map.message);
+                        }
+                        $messageElement.append(suffix).addClass(options.messageClass);
+                        $toastElement.append($messageElement);
+                    }
+                }
+
+                function setCloseButton() {
+                    if (options.closeButton) {
+                        $closeElement.addClass(options.closeClass).attr('role', 'button');
+                        $toastElement.prepend($closeElement);
+                    }
+                }
+
+                function setProgressBar() {
+                    if (options.progressBar) {
+                        $progressElement.addClass(options.progressClass);
+                        $toastElement.prepend($progressElement);
+                    }
+                }
+
+                function setRTL() {
+                    if (options.rtl) {
+                        $toastElement.addClass('rtl');
+                    }
+                }
+
+                function shouldExit(options, map) {
+                    if (options.preventDuplicates) {
+                        if (map.message === previousToast) {
+                            return true;
+                        } else {
+                            previousToast = map.message;
+                        }
+                    }
+                    return false;
+                }
+
+                function hideToast(override) {
+                    var method = override && options.closeMethod !== false ? options.closeMethod : options.hideMethod;
+                    var duration = override && options.closeDuration !== false ?
+                        options.closeDuration : options.hideDuration;
+                    var easing = override && options.closeEasing !== false ? options.closeEasing : options.hideEasing;
+                    if ($(':focus', $toastElement).length && !override) {
+                        return;
+                    }
+                    clearTimeout(progressBar.intervalId);
+                    return $toastElement[method]({
+                        duration: duration,
+                        easing: easing,
+                        complete: function () {
+                            removeToast($toastElement);
+                            clearTimeout(intervalId);
+                            if (options.onHidden && response.state !== 'hidden') {
+                                options.onHidden();
+                            }
+                            response.state = 'hidden';
+                            response.endTime = new Date();
+                            publish(response);
+                        }
+                    });
+                }
+
+                function delayedHideToast() {
+                    if (options.timeOut > 0 || options.extendedTimeOut > 0) {
+                        intervalId = setTimeout(hideToast, options.extendedTimeOut);
+                        progressBar.maxHideTime = parseFloat(options.extendedTimeOut);
+                        progressBar.hideEta = new Date().getTime() + progressBar.maxHideTime;
+                    }
+                }
+
+                function stickAround() {
+                    clearTimeout(intervalId);
+                    progressBar.hideEta = 0;
+                    $toastElement.stop(true, true)[options.showMethod](
+                        {duration: options.showDuration, easing: options.showEasing}
+                    );
+                }
+
+                function updateProgress() {
+                    var percentage = ((progressBar.hideEta - (new Date().getTime())) / progressBar.maxHideTime) * 100;
+                    $progressElement.width(percentage + '%');
+                }
+            }
+
+            function getOptions() {
+                return $.extend({}, getDefaults(), toastr.options);
+            }
+
+            function removeToast($toastElement) {
+                if (!$container) { $container = getContainer(); }
+                if ($toastElement.is(':visible')) {
+                    return;
+                }
+                $toastElement.remove();
+                $toastElement = null;
+                if ($container.children().length === 0) {
+                    $container.remove();
+                    previousToast = undefined;
+                }
+            }
+
+        })();
+    }).apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__),
+				__WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__));
+}(__webpack_require__(/*! !webpack amd define */ "./node_modules/webpack/buildin/amd-define.js")));
+
+
+/***/ }),
+
+/***/ "./node_modules/webpack/buildin/amd-define.js":
+/*!***************************************!*\
+  !*** (webpack)/buildin/amd-define.js ***!
+  \***************************************/
+/*! no static exports found */
+/***/ (function(module, exports) {
+
+module.exports = function() {
+	throw new Error("define cannot be used indirect");
+};
+
+
+/***/ }),
+
 /***/ "./node_modules/webpack/buildin/global.js":
 /*!***********************************!*\
   !*** (webpack)/buildin/global.js ***!
@@ -55184,6 +55680,8 @@ __webpack_require__(/*! datatables.net */ "./node_modules/datatables.net/js/jque
 
 __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
 
+__webpack_require__(/*! toastr */ "./node_modules/toastr/toastr.js");
+
 window.axios = __webpack_require__(/*! axios */ "./node_modules/axios/index.js");
 window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 /**
@@ -55228,6 +55726,9 @@ __webpack_require__(/*! ./main */ "./resources/js/main.js");
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! sweetalert2 */ "./node_modules/sweetalert2/dist/sweetalert2.all.js");
 /* harmony import */ var sweetalert2__WEBPACK_IMPORTED_MODULE_0___default = /*#__PURE__*/__webpack_require__.n(sweetalert2__WEBPACK_IMPORTED_MODULE_0__);
+/* harmony import */ var toastr__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! toastr */ "./node_modules/toastr/toastr.js");
+/* harmony import */ var toastr__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(toastr__WEBPACK_IMPORTED_MODULE_1__);
+
 
 $(document).ready(function () {
   $.ajaxSetup({
@@ -55239,24 +55740,16 @@ $(document).ready(function () {
   var bookmarkCreate = window.location.origin + '/bookmark/create';
   var bookmarkShow = window.location.origin + '/bookmark/show';
 
-  if (bookmark === window.location.href) {
+  if (window.location.href === bookmark) {
     $('#book').attr('class', 'nav-link dropdown-toggle');
-  } else if (bookmarkCreate === window.location.href) {
+  } else if (window.location.href === bookmarkCreate) {
     $('#book').attr('class', 'nav-link dropdown-toggle');
-  } else if (bookmarkShow === window.location.href) {
+  } else if (window.location.href === bookmarkShow) {
     $('#book').attr('class', 'nav-link dropdown-toggle');
   }
-
-  $('#btnRegister').on('click', function (event) {
-    // event.preventDefault();
-    $.post('/test', {
-      key: 'test'
-    }, function (data) {
-      console.log(data);
-    });
-  });
   /* Category */
   // datatables
+
 
   $('#categories').DataTable({
     "columnDefs": [{
@@ -55281,15 +55774,16 @@ $(document).ready(function () {
     var tr = $(this).closest('tr');
     var id = tr.find('.category-id').val();
     $.ajax({
-      type: "post",
-      url: "/category/fetch/",
+      type: 'post',
+      url: '/category/fetch/',
       data: {
         id: id
       },
-      dataType: "json",
+      dataType: "text",
       success: function success(response) {
+        var jsonResponse = JSON.parse(response);
         $('#categoryId').val(id);
-        $('#updateCategoryName').val(response[0]);
+        $('#updateCategoryName').val(jsonResponse[0]);
         $('#updateCategoryModal').modal('toggle');
       }
     });
@@ -55301,12 +55795,12 @@ $(document).ready(function () {
 
     if (name !== updateName) {
       $.ajax({
-        type: "put",
-        url: "/category/" + id,
+        type: 'put',
+        url: '/category/' + id,
         data: {
           name: updateName
         },
-        dataType: "text",
+        dataType: 'text',
         success: function success(response) {
           var jsonResponse = JSON.parse(response);
 
@@ -55355,11 +55849,13 @@ $(document).ready(function () {
     }).then(function (result) {
       if (result.value) {
         $.ajax({
-          type: "delete",
-          url: "/category/" + id,
-          dataType: "json",
-          success: function success(deleted) {
-            if (deleted) {
+          type: 'delete',
+          url: '/category/' + id,
+          dataType: 'text',
+          success: function success(response) {
+            var jsonResponse = JSON.parse(response);
+
+            if (jsonResponse.success) {
               tr.remove();
               sweetalert2__WEBPACK_IMPORTED_MODULE_0___default.a.fire({
                 title: 'Deleted!',
@@ -55383,22 +55879,23 @@ $(document).ready(function () {
     var div = $(this).closest('div');
     var id = div.find('.book-id').val();
     $.ajax({
-      type: "post",
-      url: "/book/fetch/",
+      type: 'post',
+      url: '/book/fetch/',
       data: {
         id: id
       },
-      dataType: "json",
+      dataType: 'text',
       success: function success(response) {
+        var jsonResponse = JSON.parse(response);
         $('#bookId').val(id);
         $("#bookCategory option").each(function () {
-          if ($(this).val() == response[0].category_id) {
+          if ($(this).val() == jsonResponse[0].category_id) {
             $(this).attr("selected", "selected");
           }
         });
-        $('#title').val(response[0].title);
-        $('#author').val(response[0].author);
-        $('#description').val(response[0].description);
+        $('#title').val(jsonResponse[0].title);
+        $('#author').val(jsonResponse[0].author);
+        $('#description').val(jsonResponse[0].description);
         $('#updateBookModal').modal('toggle');
       }
     });
@@ -55418,31 +55915,83 @@ $(document).ready(function () {
         data: {
           id: id
         },
-        dataType: "json",
+        dataType: "text",
         success: function success(response) {
+          var jsonResponse = JSON.parse(response);
           var category = $('#bookCategory').val();
           var title = $('#title').val();
           var author = $('#author').val();
           var description = $('#description').val();
 
-          if (category != response[0].category_id || title != response[0].title || author != response[0].author || description != response[0].description) {
-            console.log('update with image');
-          } else {
+          if (category != jsonResponse[0].category_id || title != jsonResponse[0].title || author != jsonResponse[0].author || description != jsonResponse[0].description) {
             var formData = new FormData();
             formData.append('_method', 'PUT');
-            formData.append('key', 'updateImage');
+            formData.append('key', 'updateBookWithImage');
             formData.append('id', id);
+            formData.append('category', category);
+            formData.append('title', title);
+            formData.append('author', author);
+            formData.append('description', description);
             formData.append('image', property);
             $.ajax({
-              type: "post",
-              url: "/book/" + id,
+              type: 'post',
+              url: '/book/' + id,
               data: formData,
               contentType: false,
               cache: false,
               processData: false,
-              dataType: "json",
+              dataType: "text",
               success: function success(response) {
-                if (response.success) {
+                var jsonResponse = JSON.parse(response);
+
+                if (jsonResponse.success) {
+                  $('#updateBookModal').modal('toggle');
+                  sweetalert2__WEBPACK_IMPORTED_MODULE_0___default.a.fire({
+                    title: 'Updated!',
+                    text: "Book image was successfully updated.",
+                    type: 'success'
+                  }).then(function (result) {
+                    if (result.value) {
+                      window.location.reload();
+                    }
+                  });
+                } else {
+                  $('#updateBookModal').modal('toggle');
+                  sweetalert2__WEBPACK_IMPORTED_MODULE_0___default.a.fire({
+                    title: 'Update Failed!',
+                    text: "Unable to update your book image.",
+                    type: 'error'
+                  }).then(function (result) {
+                    if (result.value) {
+                      window.location.reload();
+                    }
+                  });
+                }
+              }
+            });
+          } else {
+            var _formData = new FormData();
+
+            _formData.append('_method', 'PUT');
+
+            _formData.append('key', 'updateImage');
+
+            _formData.append('id', id);
+
+            _formData.append('image', property);
+
+            $.ajax({
+              type: 'post',
+              url: '/book/' + id,
+              data: _formData,
+              contentType: false,
+              cache: false,
+              processData: false,
+              dataType: "text",
+              success: function success(response) {
+                var jsonResponse = JSON.parse(response);
+
+                if (jsonResponse.success) {
                   $('#updateBookModal').modal('toggle');
                   sweetalert2__WEBPACK_IMPORTED_MODULE_0___default.a.fire({
                     title: 'Updated!',
@@ -55477,17 +56026,18 @@ $(document).ready(function () {
         data: {
           id: id
         },
-        dataType: "json",
+        dataType: "text",
         success: function success(response) {
+          var jsonResponse = JSON.parse(response);
           var category = $('#bookCategory').val();
           var title = $('#title').val();
           var author = $('#author').val();
           var description = $('#description').val();
 
-          if (category != response[0].category_id || title != response[0].title || author != response[0].author || description != response[0].description) {
+          if (category != jsonResponse[0].category_id || title != jsonResponse[0].title || author != jsonResponse[0].author || description != jsonResponse[0].description) {
             $.ajax({
-              type: "put",
-              url: "/book/" + id,
+              type: 'put',
+              url: 'book/' + id,
               data: {
                 key: 'updateBookInfo',
                 category: category,
@@ -55495,9 +56045,11 @@ $(document).ready(function () {
                 author: author,
                 description: description
               },
-              dataType: "json",
+              dataType: "text",
               success: function success(response) {
-                if (response.success) {
+                var jsonResponse = JSON.parse(response);
+
+                if (jsonResponse.success) {
                   setBookCategoryName(id, category);
                   $('.title-' + id).text(title);
                   $('.author-' + id).text(author);
@@ -55577,6 +56129,36 @@ $(document).ready(function () {
   if (errorMessage) {
     $('#app').scrollTop();
   }
+
+  var book = window.location.origin + '/book';
+
+  if (window.location.href === book) {
+    $('#app').scrollTop();
+  } // total books
+
+
+  $('#countBooks').on('click', function () {
+    $.post('/book/total', function (data) {
+      if (parseInt(data) > 0) {
+        toastr__WEBPACK_IMPORTED_MODULE_1___default.a.info('Total Books: ' + data);
+      }
+    });
+  });
+  toastr__WEBPACK_IMPORTED_MODULE_1___default.a.options = {
+    tapToDismiss: true,
+    preventDuplicates: true,
+    toastClass: 'toast',
+    containerId: 'toast-container',
+    debug: false,
+    fadeIn: 300,
+    fadeOut: 1000,
+    extendedTimeOut: 1000,
+    iconClass: 'toast-info',
+    positionClass: 'toast-top-right',
+    timeOut: 2000,
+    titleClass: 'toast-title',
+    messageClass: 'toast-message'
+  };
 });
 
 /***/ }),

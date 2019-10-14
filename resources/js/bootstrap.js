@@ -11,6 +11,7 @@ require('popper.js');
 require('bootstrap');
 require('datatables.net');
 require('sweetalert2');
+require('toastr');
 
 window.axios = require('axios');
 

@@ -88,21 +88,23 @@ class BookController extends Controller
     public function show($id)
     {
         $book = Book::find($id);
-        if ($book->user_id === Auth::id() && $book->owned) {
-            $data = array(
-                'id' => $book->id,
-                'category' => getCategoryName($book->category_id),
-                'title' => $book->title,
-                'author' => $book->author,
-                'description' => $book->description,
-                'image' => $book->image,
-                'created_at' => $book->created_at,
-                'updated_at' => $book->updated_at
-            );
-
-            return view('book.show')->with($data);
-        } else {
-            return redirect('/book/create');
+        if ($book !== null) {
+            if ($book->user_id === Auth::id() && $book->owned) {
+                $data = array(
+                    'id' => $book->id,
+                    'category' => getCategoryName($book->category_id),
+                    'title' => $book->title,
+                    'author' => $book->author,
+                    'description' => $book->description,
+                    'image' => $book->image,
+                    'created_at' => $book->created_at,
+                    'updated_at' => $book->updated_at
+                );
+    
+                return view('book.show')->with($data);
+            } else {
+                return redirect('/book/create');
+            }
         }
     }
 
@@ -126,7 +128,7 @@ class BookController extends Controller
      */
     public function update(Request $request, $id)
     {
-        if ($request->input('key') === 'updateBookInfo') {
+        if ($request->key === 'updateBookInfo') {
             $request->validate([
                 'category' => 'required',
                 'title' => 'required|min:6|max:100',
@@ -134,10 +136,10 @@ class BookController extends Controller
             ]);
 
             $book = Book::find($id);
-            $book->category_id = $request->input('category');
-            $book->title = $request->input('title');
-            $book->author = $request->input('author');
-            $book->description = $request->input('description');
+            $book->category_id = $request->category;
+            $book->title = $request->title;
+            $book->author = $request->author;
+            $book->description = $request->description;
             $book->updated_at = date('Y-m-d H:i:s');
             $book->save();
 
@@ -154,11 +156,42 @@ class BookController extends Controller
             $image = uploadImage($request, $imageFile);
 
             $book = Book::find($id);
-            removeImage($book->image);
+            $oldImage = $book->image;
+
             $book->image = $image;
             $book->save();
 
+            removeImage($oldImage);
+
             $request->session()->flash('success', 'Book image was successfully updated.');
+            return json_encode(['success' => true]);
+        }
+
+        if ($request->input('key') === 'updateBookWithImage') {            
+            $request->validate([
+                'category' => 'required',
+                'title' => 'required|min:6|max:100',
+                'author' => 'required|min:3|max:100',
+                'image' => 'image|mimes:jpeg,png,jpg,gif,|max:2048'
+            ]);
+
+            $imageFile = $request->image->getClientOriginalName();
+            $image = uploadImage($request, $imageFile);
+
+            $book = Book::find($id);
+            $oldImage = $book->image;
+
+            $book->category_id = $request->category;
+            $book->title = $request->title;
+            $book->author = $request->author;
+            $book->description = $request->description;
+            $book->updated_at = date('Y-m-d H:i:s');
+            $book->image = $image;
+            $book->save();
+    
+            removeImage($oldImage);
+
+            $request->session()->flash('success', 'Book was successfully updated.');
             return json_encode(['success' => true]);
         }
     }
@@ -181,5 +214,14 @@ class BookController extends Controller
         $id = $request->input('id');
         $book = Book::where('id', $id)->get();
         return $book;
+    }
+
+    public function total() {
+        $books = Book::select('id')
+            ->where('user_id', Auth::id())
+            ->where('owned', '=', true)
+            ->get();
+
+        return count($books);
     }
 }

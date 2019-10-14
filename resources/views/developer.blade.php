@@ -13,13 +13,11 @@
                     <div class="text-center">
                         <a class="btn btn-success" href="{{ url(config('url.developer.site')) }}" target="_blank"><i
                                 class="fas fa-link"></i></a>
-                        <a class="btn btn-primary" href="{{ url(config('url.developer.facebook')) }}" target="_blank"><i
+                        <a class="btn btn-primary facebook" href="{{ url(config('url.developer.facebook')) }}" target="_blank"><i
                                 class="fab fa-facebook-f"></i></a>
-                        <button type="button" class="btn btn-danger" id="gmailAccount"><i
-                                class="fab fa-google-plus"></i></button>
-                        <a class="btn btn-primary" href="{{ url(config('url.developer.linkedin')) }}"
+                        <a class="btn btn-primary linkedin" href="{{ url(config('url.developer.linkedin')) }}"
                             target="_blank"><i class="fab fa-linkedin"></i></a>
-                        <a class="btn btn-primary" href="{{ url(config('url.developer.github')) }}" target="_blank"><i
+                        <a class="btn btn-primary github" href="{{ url(config('url.developer.github')) }}" target="_blank"><i
                                 class="fab fa-github"></i></a>
                     </div>
                 </div>
